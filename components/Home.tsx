@@ -39,23 +39,25 @@ const Home: React.FC = () => {
         if (type === 'freelancer') {
             setLoadingFree(true);
             setFreeOpen(true);
-            setFreeResult(""); // Clear previous result
+            setFreeResult(""); 
             try {
                 const text = await generateContractContent('freelancer', input);
                 setFreeResult(text);
             } catch (e: any) {
-                setFreeResult(`⚠️ 오류 발생: ${e.message}`);
+                console.error("Frontend Error Catch:", e);
+                setFreeResult(`⚠️ 오류 발생: ${e.message}\n(Vercel 환경변수 API_KEY를 확인해주세요)`);
             }
             setLoadingFree(false);
         } else {
             setLoadingLabor(true);
             setLaborOpen(true);
-            setLaborResult(""); // Clear previous result
+            setLaborResult(""); 
             try {
                 const text = await generateContractContent('labor', input);
                 setLaborResult(text);
             } catch (e: any) {
-                setLaborResult(`⚠️ 오류 발생: ${e.message}`);
+                console.error("Frontend Error Catch:", e);
+                setLaborResult(`⚠️ 오류 발생: ${e.message}\n(Vercel 환경변수 API_KEY를 확인해주세요)`);
             }
             setLoadingLabor(false);
         }
