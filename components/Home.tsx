@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { generateContractContent } from '../services/geminiService';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, Tooltip } from 'recharts';
-import { Menu, X, ArrowRight, Wallet, CheckSquare, Calendar, Building, Info, FileText, Copy, ChevronUp, ChevronDown } from 'lucide-react';
+import { Menu, X, ArrowRight, Wallet, CheckSquare, Calendar, Building, Info, FileText, Copy, ChevronUp, ChevronDown, Save } from 'lucide-react';
 
 const Home: React.FC = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -64,6 +64,29 @@ const Home: React.FC = () => {
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
         alert("복사되었습니다!");
+    };
+
+    const saveDraft = (type: 'freelancer' | 'labor', text: string) => {
+        if (!text || text.startsWith('⚠️')) return alert("유효한 내용이 아닙니다.");
+        const key = type === 'freelancer' ? 'saved_freelancer_contract' : 'saved_labor_contract';
+        localStorage.setItem(key, text);
+        alert("브라우저에 임시 저장되었습니다!");
+    };
+
+    const loadDraft = (type: 'freelancer' | 'labor') => {
+        const key = type === 'freelancer' ? 'saved_freelancer_contract' : 'saved_labor_contract';
+        const saved = localStorage.getItem(key);
+        if (saved) {
+            if (type === 'freelancer') {
+                setFreeResult(saved);
+                setFreeOpen(true);
+            } else {
+                setLaborResult(saved);
+                setLaborOpen(true);
+            }
+        } else {
+            alert("저장된 내용이 없습니다.");
+        }
     };
 
     return (
@@ -173,9 +196,15 @@ const Home: React.FC = () => {
                             </div>
                             <p className="text-xs text-brand-400">코치와의 독립적인 파트너십 계약 (3.3%)</p>
                             <input value={freeRole} onChange={e => setFreeRole(e.target.value)} type="text" placeholder="코치 이름 및 역할" className="w-full px-4 py-3 bg-brand-50 border border-brand-200 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all" />
-                            <button onClick={() => handleGenerate('freelancer')} className="w-full bg-accent text-white font-black py-4 rounded-xl shadow-md hover:bg-accent-dark active:scale-95 transition-all">
-                                {loadingFree ? '생성 중...' : 'AI 문구 생성'}
-                            </button>
+                            
+                            <div className="flex gap-2">
+                                <button onClick={() => handleGenerate('freelancer')} className="flex-1 bg-accent text-white font-black py-4 rounded-xl shadow-md hover:bg-accent-dark active:scale-95 transition-all">
+                                    {loadingFree ? '생성 중...' : 'AI 문구 생성'}
+                                </button>
+                                <button onClick={() => loadDraft('freelancer')} className="px-4 py-4 rounded-xl border-2 border-brand-100 text-brand-500 font-bold hover:bg-brand-50 hover:text-brand-700 hover:border-brand-200 transition-all" title="저장된 내용 불러오기">
+                                    <FileText className="w-5 h-5" />
+                                </button>
+                            </div>
                             
                             {freeOpen && (
                                 <div className="space-y-3 pt-4 border-t border-brand-100">
@@ -183,8 +212,9 @@ const Home: React.FC = () => {
                                         {loadingFree ? <div className="animate-pulse text-brand-400">AI가 작성 중입니다...</div> : freeResult}
                                     </div>
                                     <div className="flex gap-2">
-                                        <button onClick={() => copyToClipboard(freeResult)} className="flex-1 bg-brand-800 hover:bg-brand-900 text-white py-3 rounded-xl text-sm font-bold shadow-sm transition-colors flex justify-center items-center gap-2"><Copy className="w-4 h-4"/> 복사하기</button>
-                                        <button onClick={() => setFreeOpen(false)} className="flex-1 bg-brand-200 hover:bg-brand-300 text-brand-700 py-3 rounded-xl text-sm font-bold transition-colors flex justify-center items-center gap-2"><ChevronUp className="w-4 h-4"/>접기</button>
+                                        <button onClick={() => copyToClipboard(freeResult)} className="flex-1 bg-brand-800 hover:bg-brand-900 text-white py-3 rounded-xl text-sm font-bold shadow-sm transition-colors flex justify-center items-center gap-2"><Copy className="w-4 h-4"/> 복사</button>
+                                        <button onClick={() => saveDraft('freelancer', freeResult)} className="flex-1 bg-white border border-brand-200 hover:bg-brand-50 text-brand-700 py-3 rounded-xl text-sm font-bold transition-colors flex justify-center items-center gap-2"><Save className="w-4 h-4"/> 저장</button>
+                                        <button onClick={() => setFreeOpen(false)} className="bg-brand-100 hover:bg-brand-200 text-brand-600 px-4 rounded-xl transition-colors"><ChevronUp className="w-5 h-5"/></button>
                                     </div>
                                 </div>
                             )}
@@ -198,9 +228,15 @@ const Home: React.FC = () => {
                             </div>
                             <p className="text-xs text-brand-400">정규직/아르바이트 직원 채용</p>
                             <input value={laborInfo} onChange={e => setLaborInfo(e.target.value)} type="text" placeholder="근로자 이름 및 급여 조건" className="w-full px-4 py-3 bg-brand-50 border border-brand-200 rounded-xl outline-none focus:border-brand-900 focus:ring-2 focus:ring-brand-900/20 transition-all" />
-                            <button onClick={() => handleGenerate('labor')} className="w-full bg-brand-900 text-white font-black py-4 rounded-xl shadow-md hover:bg-black active:scale-95 transition-all">
-                                {loadingLabor ? '생성 중...' : 'AI 초안 생성'}
-                            </button>
+                            
+                            <div className="flex gap-2">
+                                <button onClick={() => handleGenerate('labor')} className="flex-1 bg-brand-900 text-white font-black py-4 rounded-xl shadow-md hover:bg-black active:scale-95 transition-all">
+                                    {loadingLabor ? '생성 중...' : 'AI 초안 생성'}
+                                </button>
+                                <button onClick={() => loadDraft('labor')} className="px-4 py-4 rounded-xl border-2 border-brand-100 text-brand-500 font-bold hover:bg-brand-50 hover:text-brand-700 hover:border-brand-200 transition-all" title="저장된 내용 불러오기">
+                                    <FileText className="w-5 h-5" />
+                                </button>
+                            </div>
 
                              {laborOpen && (
                                 <div className="space-y-3 pt-4 border-t border-brand-100">
@@ -208,8 +244,9 @@ const Home: React.FC = () => {
                                         {loadingLabor ? <div className="animate-pulse text-brand-400">AI가 작성 중입니다...</div> : laborResult}
                                     </div>
                                     <div className="flex gap-2">
-                                        <button onClick={() => copyToClipboard(laborResult)} className="flex-1 bg-brand-800 hover:bg-brand-900 text-white py-3 rounded-xl text-sm font-bold shadow-sm transition-colors flex justify-center items-center gap-2"><Copy className="w-4 h-4"/> 복사하기</button>
-                                        <button onClick={() => setLaborOpen(false)} className="flex-1 bg-brand-200 hover:bg-brand-300 text-brand-700 py-3 rounded-xl text-sm font-bold transition-colors flex justify-center items-center gap-2"><ChevronUp className="w-4 h-4"/>접기</button>
+                                        <button onClick={() => copyToClipboard(laborResult)} className="flex-1 bg-brand-800 hover:bg-brand-900 text-white py-3 rounded-xl text-sm font-bold shadow-sm transition-colors flex justify-center items-center gap-2"><Copy className="w-4 h-4"/> 복사</button>
+                                        <button onClick={() => saveDraft('labor', laborResult)} className="flex-1 bg-white border border-brand-200 hover:bg-brand-50 text-brand-700 py-3 rounded-xl text-sm font-bold transition-colors flex justify-center items-center gap-2"><Save className="w-4 h-4"/> 저장</button>
+                                        <button onClick={() => setLaborOpen(false)} className="bg-brand-100 hover:bg-brand-200 text-brand-600 px-4 rounded-xl transition-colors"><ChevronUp className="w-5 h-5"/></button>
                                     </div>
                                 </div>
                             )}
