@@ -39,21 +39,23 @@ const Home: React.FC = () => {
         if (type === 'freelancer') {
             setLoadingFree(true);
             setFreeOpen(true);
+            setFreeResult(""); // Clear previous result
             try {
                 const text = await generateContractContent('freelancer', input);
                 setFreeResult(text);
-            } catch (e) {
-                setFreeResult("오류가 발생했습니다. 다시 시도해주세요.");
+            } catch (e: any) {
+                setFreeResult(`⚠️ 오류 발생: ${e.message}`);
             }
             setLoadingFree(false);
         } else {
             setLoadingLabor(true);
             setLaborOpen(true);
+            setLaborResult(""); // Clear previous result
             try {
                 const text = await generateContractContent('labor', input);
                 setLaborResult(text);
-            } catch (e) {
-                setLaborResult("오류가 발생했습니다. 다시 시도해주세요.");
+            } catch (e: any) {
+                setLaborResult(`⚠️ 오류 발생: ${e.message}`);
             }
             setLoadingLabor(false);
         }
@@ -177,7 +179,7 @@ const Home: React.FC = () => {
                             
                             {freeOpen && (
                                 <div className="space-y-3 pt-4 border-t border-brand-100">
-                                    <div className="p-4 bg-stone-50 border border-brand-200 rounded-xl whitespace-pre-wrap word-break-all text-sm h-64 overflow-y-auto custom-scroll">
+                                    <div className={`p-4 bg-stone-50 border border-brand-200 rounded-xl whitespace-pre-wrap word-break-all text-sm h-64 overflow-y-auto custom-scroll ${freeResult.startsWith('⚠️') ? 'text-red-500 font-bold bg-red-50 border-red-100' : ''}`}>
                                         {loadingFree ? <div className="animate-pulse text-brand-400">AI가 작성 중입니다...</div> : freeResult}
                                     </div>
                                     <div className="flex gap-2">
@@ -202,7 +204,7 @@ const Home: React.FC = () => {
 
                              {laborOpen && (
                                 <div className="space-y-3 pt-4 border-t border-brand-100">
-                                    <div className="p-4 bg-stone-50 border border-brand-200 rounded-xl whitespace-pre-wrap word-break-all text-sm h-64 overflow-y-auto custom-scroll">
+                                    <div className={`p-4 bg-stone-50 border border-brand-200 rounded-xl whitespace-pre-wrap word-break-all text-sm h-64 overflow-y-auto custom-scroll ${laborResult.startsWith('⚠️') ? 'text-red-500 font-bold bg-red-50 border-red-100' : ''}`}>
                                         {loadingLabor ? <div className="animate-pulse text-brand-400">AI가 작성 중입니다...</div> : laborResult}
                                     </div>
                                     <div className="flex gap-2">
