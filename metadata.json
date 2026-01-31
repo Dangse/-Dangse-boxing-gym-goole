@@ -1,0 +1,5 @@
+{
+  "name": "Boxing Gym Tax & Payroll Master",
+  "description": "A comprehensive React application for Boxing Gym management, featuring AI-powered contract generation using Gemini 3 and a full local-storage based payroll system.",
+  "requestFramePermissions": []
+}
